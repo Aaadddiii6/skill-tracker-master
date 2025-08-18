@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Schedule Course | SkillTrack Pro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafb;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 40px;
+            font-weight: 600;
+            color: #222;
+        }
+        form {
+            max-width: 500px;
+            margin: 40px auto;
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 30px 35px;
+            border-radius: 8px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        select,
+        input[type="datetime-local"] {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 16px;
+            border: 1.5px solid #ccc;
+            border-radius: 5px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+        select:focus,
+        input[type="datetime-local"]:focus {
+            border-color: #0066cc;
+            outline: none;
+            box-shadow: 0 0 6px rgba(0, 102, 204, 0.3);
+        }
+        button {
+            margin-top: 25px;
+            background-color: #0066cc;
+            color: #fff;
+            font-weight: 600;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 17px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #004a99;
+        }
+        a {
+            display: block;
+            text-align: center;
+            margin: 30px auto 60px;
+            text-decoration: none;
+            color: #0066cc;
+            font-weight: 600;
+            font-size: 15px;
+            max-width: 500px;
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: #004a99;
+        }
+    </style>
+</head>
+<body>
+    <h1>Schedule Course</h1>
+
+    <form method="post" action="{{ url_for('admin.schedule_course') }}">
+        <label for="course">Select Course:</label>
+        <select name="course_id" id="course" required>
+            {% for course in courses %}
+            <option value="{{ course.id }}">{{ course.title }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="date" style="margin-top: 20px;">Date & Time:</label>
+        <input type="datetime-local" name="datetime" id="date" required />
+
+        <button type="submit">Assign Time Slot</button>
+    </form>
+
+    <a href="{{ url_for('admin.dashboard') }}">&#8592; Back to Dashboard</a>
+</body>
+</html>

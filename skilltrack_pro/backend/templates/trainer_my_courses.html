@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>My Courses | SkillTrack Pro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f9fafb;
+            margin: 0; padding: 20px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: left;
+        }
+        th {
+            background-color: #1f2937;
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+        a.back-link {
+            display: block;
+            margin: 30px auto 0;
+            max-width: 900px;
+            text-align: center;
+            text-decoration: none;
+            color: #2563eb;
+            font-weight: 600;
+        }
+        a.back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<h1>My Assigned Courses</h1>
+
+{% if courses %}
+<table>
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Scheduled Time</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for course in courses %}
+        <tr>
+            <td>{{ course.title }}</td>
+            <td>{{ course.description or '-' }}</td>
+            <td>{{ course.status }}</td>
+            <td>{{ course.scheduled_time.strftime('%Y-%m-%d %H:%M') if course.scheduled_time else '-' }}</td>
+            <td>
+              <a href="{{ url_for('trainer.upload_documentation', course_id=course.id) }}">Upload Documentation</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p style="text-align:center; font-style: italic; color:#666;">No assigned courses found.</p>
+{% endif %}
+
+<a href="{{ url_for('trainer.dashboard') }}" class="back-link">&#8592; Back to Dashboard</a>
+
+</body>
+</html>

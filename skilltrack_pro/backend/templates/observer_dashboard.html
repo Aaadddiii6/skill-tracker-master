@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Observer Dashboard | SkillTrack Pro</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}"
+    />
+    <style>
+      /* ===== Top Navbar ===== */
+      .navbar {
+        height: 60px;
+        background: #1f2937;
+        color: white;
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+        justify-content: space-between;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+      }
+      .navbar-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .menu-toggle {
+        font-size: 22px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        color: white;
+      }
+      .navbar-title {
+        font-weight: bold;
+        font-size: 1.1rem;
+      }
+      .dashboard-title {
+        font-size: 1rem;
+        opacity: 0.8;
+      }
+      .navbar-right .logout-btn {
+        background: #dc2626;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+      }
+      .navbar-right .logout-btn:hover {
+        background: #b91c1c;
+      }
+
+      /* ===== Sidebar ===== */
+      .sidebar {
+        width: 230px;
+        background: #1f2937;
+        color: #fff;
+        height: 100vh;
+        position: fixed;
+        top: 60px; /* below navbar */
+        left: 0;
+        padding: 20px 10px;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s ease;
+      }
+      .sidebar.hidden {
+        transform: translateX(-100%);
+      }
+      .sidebar a {
+        color: #cbd5e1;
+        padding: 10px 15px;
+        text-decoration: none;
+        margin-bottom: 6px;
+        border-radius: 4px;
+      }
+      .sidebar a:hover {
+        background: #374151;
+        color: #fff;
+      }
+
+      /* Main content adjustments */
+      .main-content {
+        margin-left: 230px;
+        padding: 80px 20px 20px; /* adjust for navbar space */
+        transition: margin-left 0.3s ease;
+      }
+      .main-content.full {
+        margin-left: 0;
+      }
+
+      /* Dashboard Cards */
+      .status-cards {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 30px;
+      }
+      .card {
+        flex: 1 1 200px;
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 12px rgba(17, 24, 39, 0.06);
+        font-weight: 600;
+        text-align: center;
+        color: #1f2937;
+        user-select: none;
+        cursor: default;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 18px rgba(17, 24, 39, 0.08);
+      }
+      .card.pending {
+        background-color: #e5e7eb;
+        color: #374151;
+      }
+      .card.approved {
+        background-color: #d1fae5;
+        color: #065f46;
+      }
+      .card.rejected {
+        background-color: #fee2e2;
+        color: #991b1b;
+      }
+
+      /* Table Styles */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        max-width: 1000px;
+        margin: 0 auto 30px;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      th,
+      td {
+        padding: 14px 18px;
+        border-bottom: 1px solid #e0e0e0;
+        text-align: left;
+      }
+      th {
+        background-color: #1f2937;
+        color: white;
+      }
+      tr:hover {
+        background-color: #f1f5f9;
+      }
+      .action-link {
+        color: #2563eb;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .action-link:hover {
+        text-decoration: underline;
+      }
+      .feedback-list {
+        font-style: italic;
+        font-size: 0.9rem;
+        color: #7f1d1d;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top Navbar -->
+    <div class="navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle">&#9776;</button>
+        <span class="navbar-title">SkillTrack Pro</span>
+        <span class="dashboard-title">Observer Dashboard</span>
+      </div>
+      <div class="navbar-right">
+        <a href="{{ url_for('auth.logout') }}">
+          <button class="logout-btn">Logout</button>
+        </a>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar hidden">
+      <a href="{{ url_for('observer.dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('observer.pending_reviews') }}">Pending Reviews</a>
+      <a href="{{ url_for('observer.completed_reviews') }}"
+        >Completed Reviews</a
+      >
+      <a href="{{ url_for('trainer.dashboard') }}">Back to Trainer Dashboard</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content full">
+      <div class="page-container">
+        <h1>Observer Dashboard</h1>
+
+        <div class="panel" style="margin-bottom: 16px">
+          <div class="status-cards">
+            <div class="card pending">
+              Pending Reviews: {{ pending_docs|length }}
+            </div>
+            <div class="card approved">
+              Approved Documents: {{ approved_docs|length }}
+            </div>
+            <div class="card rejected">
+              Rejected Documents: {{ rejected_docs|length }}
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-bottom: 16px">
+          <h2 style="margin-bottom: 10px">Pending Reviews</h2>
+          {% if pending_docs %}
+          <table>
+            <thead>
+              <tr>
+                <th>Course Title</th>
+                <th>Trainer</th>
+                <th>Submitted On</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for doc in pending_docs %}
+              <tr>
+                <td>{{ doc.course.title }}</td>
+                <td>{{ doc.course.trainer.name }}</td>
+                <td>
+                  {{ doc.submitted_at.strftime('%Y-%m-%d') if doc.submitted_at
+                  else '-' }}
+                </td>
+                <td>
+                  <a
+                    href="{{ url_for('observer.review_documentation', doc_id=doc.id) }}"
+                    class="action-link"
+                    >Review</a
+                  >
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p>No documents pending review.</p>
+          {% endif %}
+        </div>
+
+        <div class="panel" style="margin-bottom: 16px">
+          <h2 style="margin-bottom: 10px">Approved Documents</h2>
+          {% if approved_docs %}
+          <table>
+            <thead>
+              <tr>
+                <th>Course Title</th>
+                <th>Trainer</th>
+                <th>Approved On</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for doc in approved_docs %}
+              <tr>
+                <td>{{ doc.course.title }}</td>
+                <td>{{ doc.course.trainer.name }}</td>
+                <td>
+                  {{ doc.approved_at.strftime('%Y-%m-%d') if doc.approved_at
+                  else '-' }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p>No approved documents.</p>
+          {% endif %}
+        </div>
+
+        <div class="panel">
+          <h2 style="margin-bottom: 10px">Rejected Documents</h2>
+          {% if rejected_docs %}
+          <table>
+            <thead>
+              <tr>
+                <th>Course Title</th>
+                <th>Trainer</th>
+                <th>Rejected On</th>
+                <th>Feedback</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for doc in rejected_docs %}
+              <tr>
+                <td>{{ doc.course.title }}</td>
+                <td>{{ doc.course.trainer.name }}</td>
+                <td>
+                  {{ doc.rejected_at.strftime('%Y-%m-%d') if doc.rejected_at
+                  else '-' }}
+                </td>
+                <td>
+                  {% if doc.feedbacks %}
+                  <ul class="feedback-list">
+                    {% for fb in doc.feedbacks %}
+                    <li>
+                      {{ fb.comments }}
+                      <small>({{ fb.created_at.strftime('%Y-%m-%d') }})</small>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                  {% else %} No feedback provided. {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p>No rejected documents.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const toggleBtn = document.querySelector(".menu-toggle");
+      const sidebar = document.querySelector(".sidebar");
+      const mainContent = document.querySelector(".main-content");
+
+      toggleBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("hidden");
+        mainContent.classList.toggle("full");
+      });
+    </script>
+  </body>
+</html>

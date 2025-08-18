@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Dashboard | SkillTrack Pro</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}"
+    />
+    <style>
+      /* ===== Top Navbar ===== */
+      .navbar {
+        height: 60px;
+        background: #1f2937;
+        color: white;
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+        justify-content: space-between;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+      }
+      .navbar-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .menu-toggle {
+        font-size: 22px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        color: white;
+      }
+      .navbar-title {
+        font-weight: bold;
+        font-size: 1.1rem;
+      }
+      .dashboard-title {
+        font-size: 1rem;
+        opacity: 0.8;
+      }
+      .navbar-right .logout-btn {
+        background: #dc2626;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+      }
+      .navbar-right .logout-btn:hover {
+        background: #b91c1c;
+      }
+
+      /* ===== Sidebar styles ===== */
+      .sidebar {
+        width: 230px;
+        background: #1f2937;
+        color: #fff;
+        height: 100vh;
+        position: fixed;
+        top: 60px; /* below navbar */
+        left: 0;
+        padding: 20px 10px;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s ease;
+      }
+      .sidebar.hidden {
+        transform: translateX(-100%);
+      }
+      .sidebar a {
+        color: #cbd5e1;
+        padding: 10px 15px;
+        text-decoration: none;
+        margin-bottom: 6px;
+        border-radius: 4px;
+      }
+      .sidebar a:hover {
+        background: #374151;
+        color: #fff;
+      }
+
+      /* Adjust main content position */
+      .main-content {
+        margin-left: 230px;
+        padding: 80px 20px 20px 20px; /* 80px top for navbar space */
+        transition: margin-left 0.3s ease;
+      }
+      .main-content.full {
+        margin-left: 0;
+      }
+
+      /* Cards for course status */
+      .status-cards {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+      .card {
+        padding: 20px;
+        border-radius: 12px;
+        color: #1f2937;
+        font-weight: 600;
+        flex: 1;
+        text-align: center;
+        font-size: 1.1rem;
+        background-color: #ffffff;
+        box-shadow: 0 4px 12px rgba(17, 24, 39, 0.06);
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 18px rgba(17, 24, 39, 0.08);
+      }
+      .requested {
+        background-color: #fef3c7;
+        color: #92400e;
+      }
+      .in-review {
+        background-color: #dbeafe;
+        color: #1e40af;
+      }
+      .approved {
+        background-color: #d1fae5;
+        color: #065f46;
+      }
+      .completed {
+        background-color: #e5e7eb;
+        color: #374151;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top Navbar -->
+    <div class="navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle">&#9776;</button>
+        <!-- Three horizontal lines -->
+        <span class="navbar-title">SkillTrack Pro</span>
+        <span class="dashboard-title">Admin Dashboard</span>
+      </div>
+      <div class="navbar-right">
+        <a href="{{ url_for('auth.logout') }}">
+          <button class="logout-btn">Logout</button>
+        </a>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar hidden">
+      <h2>Admin</h2>
+      <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('admin.manage_trainers') }}">Manage Trainers</a>
+      <a href="{{ url_for('admin.request_course') }}">New Course</a>
+      <a href="{{ url_for('admin.schedule_course') }}">Schedule Courses</a>
+      <a href="{{ url_for('admin.feedback') }}">Feedback</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content full">
+      <h1>Course Status Overview</h1>
+      <div class="status-cards">
+        <div class="table-container"></div>
+
+        <div class="card requested">Requested: {{ requested_count }}</div>
+        <div class="card in-review">In Review: {{ in_review_count }}</div>
+        <div class="card approved">Approved: {{ approved_count }}</div>
+        <div class="card completed">Completed: {{ completed_count }}</div>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin_dashboard.js') }}"></script>
+
+    <!-- Sidebar Toggle Script -->
+    <script>
+      const toggleBtn = document.querySelector(".menu-toggle");
+      const sidebar = document.querySelector(".sidebar");
+      const mainContent = document.querySelector(".main-content");
+
+      toggleBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("hidden");
+        mainContent.classList.toggle("full");
+      });
+    </script>
+  </body>
+</html>

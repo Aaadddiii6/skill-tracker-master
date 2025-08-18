@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Upload Documentation | SkillTrack Pro</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f9fafb;
+        padding: 30px;
+        margin: 0;
+        color: #333;
+      }
+      h1 {
+        text-align: center;
+        font-weight: 700;
+        margin-bottom: 30px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 8px;
+        padding: 25px 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+      }
+      .info {
+        margin-bottom: 20px;
+        font-weight: 600;
+        color: #1f2937;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      input[type="file"] {
+        border: 1.5px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 10px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      button {
+        background-color: #2563eb;
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+      button:hover {
+        background-color: #1e40af;
+      }
+      p.status {
+        font-size: 0.9rem;
+        color: #6b7280;
+      }
+      a.back-link {
+        display: block;
+        margin: 25px auto 0;
+        max-width: 600px;
+        text-align: center;
+        font-weight: 600;
+        color: #2563eb;
+        text-decoration: none;
+      }
+      a.back-link:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Upload Documentation for "{{ course.title }}"</h1>
+
+    <div class="container">
+      <p class="info">
+        <strong>Current Revision:</strong> {{ latest_doc.revision_number if
+        latest_doc else 0 }}
+      </p>
+      <p class="info">
+        <strong>Documentation Status:</strong> {{ latest_doc.status if
+        latest_doc else 'Not Uploaded' }}
+      </p>
+
+      <form method="post" enctype="multipart/form-data">
+        <input
+          type="file"
+          name="documentation"
+          accept=".pdf,.doc,.docx,.ppt,.pptx"
+          required
+        />
+        <button type="submit">Upload</button>
+      </form>
+
+      <form
+        method="post"
+        action="{{ url_for('trainer.submit_for_review', course_id=course.id) }}"
+        style="margin-top: 20px"
+      >
+        <button type="submit" style="background-color: #059669">
+          Submit for Review
+        </button>
+      </form>
+    </div>
+
+    <a href="{{ url_for('trainer.dashboard') }}" class="back-link"
+      >&#8592; Back to Dashboard</a
+    >
+  </body>
+</html>
