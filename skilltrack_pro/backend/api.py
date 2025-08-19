@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 from flask_login import login_required
-from models import Course, Trainer
+from .models import Course, Trainer
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
