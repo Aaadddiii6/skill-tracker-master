@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from models import Trainer, Course, Documentation, Feedback, db  # Your SQLAlchemy models and DB session
 from sqlalchemy import or_
+from datetime import datetime
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -97,8 +98,28 @@ def schedule_course():
         course_id = request.form.get('course_id')
         datetime_str = request.form.get('datetime')
 
-        course = Course.query.filter_by(id=course_id, user_id=current_user.id).first_or_404()
-        course.scheduled_time = datetime_str
+        # Admin can schedule any course, not just their own
+        course = Course.query.filter_by(id=course_id, status='In Review').first_or_404()
+        
+        # Parse datetime string to proper DateTime object
+        try:
+            # Handle your timestamp format: "2025-08-19 19:46:21.800543"
+            if datetime_str:
+                # Try parsing with microseconds first
+                try:
+                    parsed_datetime = datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S.%f')
+                except ValueError:
+                    # Fallback to format without microseconds
+                    parsed_datetime = datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
+                
+                course.scheduled_time = parsed_datetime
+            else:
+                course.scheduled_time = None
+                
+        except ValueError as e:
+            flash(f'Invalid datetime format. Please use YYYY-MM-DD HH:MM:SS format. Error: {str(e)}', 'danger')
+            return redirect(url_for('admin.schedule_course'))
+        
         course.status = 'Approved'
         db.session.commit()
         flash('Time slot assigned successfully', 'success')
@@ -143,7 +164,7 @@ def rejected_courses():
 def approved_courses():
     courses = Course.query.filter_by(status='Approved').all()
     # Map each course to its latest approved documentation (for link/display)
-    course_documents = {}
+    approved_docs_map = {}
     for c in courses:
         latest_doc = (
             Documentation.query
@@ -152,22 +173,34 @@ def approved_courses():
             .first()
         )
         if latest_doc:
-            course_documents[c.id] = latest_doc
-    return render_template('admin_approved_courses.html', courses=courses, course_documents=course_documents)
+            approved_docs_map[c.id] = latest_doc
+    return render_template('admin_approved_courses.html', courses=courses, approved_docs_map=approved_docs_map)
 
 # Feedback overview
 @admin_bp.route('/feedback')
 @login_required
 def feedback():
-    # Aggregate feedback for current_user's courses (example schema)
+    # Aggregate feedback for current_user's courses
     feedback_data = []
     courses = Course.query.filter_by(user_id=current_user.id, status='Completed').all()
     for course in courses:
-        avg_rating = db.session.query(db.func.avg(course.feedbacks.rating)).filter(course.feedbacks).scalar() or 0
-        comments_count = len(course.feedbacks)
+        # Get feedback through documentation relationship
+        total_rating = 0
+        total_feedback = 0
+        comments_count = 0
+        
+        for doc in course.documents:
+            for feedback in doc.feedbacks:
+                if feedback.rating:
+                    total_rating += feedback.rating
+                    total_feedback += 1
+                comments_count += 1
+        
+        avg_rating = round(total_rating / total_feedback, 2) if total_feedback > 0 else 0
+        
         feedback_data.append({
             "course": course.title,
-            "average_rating": round(avg_rating, 2),
+            "average_rating": avg_rating,
             "comments": comments_count
         })
 
