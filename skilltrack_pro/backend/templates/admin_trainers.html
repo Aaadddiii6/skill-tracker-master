@@ -1,157 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <title>Manage Trainers | SkillTrack Pro</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f9fafb;
-            color: #333;
-            margin: 0;
-            padding: 0 15px 40px 15px;
-        }
-        h1 {
-            text-align: center;
-            margin-top: 40px;
-            font-weight: 600;
-            color: #222;
-        }
-        form {
-            max-width: 600px;
-            margin: 20px auto;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        form input[type="text"],
-        form input[type="search"] {
-            flex-grow: 1;
-            padding: 10px 12px;
-            font-size: 16px;
-            border: 1.5px solid #ccc;
-            border-radius: 5px;
-            transition: border-color 0.3s ease;
-            box-sizing: border-box;
-        }
-        form input[type="text"]:focus,
-        form input[type="search"]:focus {
-            border-color: #0066cc;
-            outline: none;
-            box-shadow: 0 0 6px rgba(0, 102, 204, 0.3);
-        }
-        form button {
-            background-color: #0066cc;
-            color: #fff;
-            font-weight: 600;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
-        }
-        form button:hover {
-            background-color: #004a99;
-        }
-        table {
-            max-width: 700px;
-            margin: 30px auto 0 auto;
-            border-collapse: separate;
-            border-spacing: 0;
-            width: 100%;
-            background: #fff;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            overflow: hidden;
-            font-size: 16px;
-        }
-        thead {
-            background-color: #0066cc;
-            color: #fff;
-            font-weight: 600;
-            text-align: left;
-        }
-        th, td {
-            padding: 14px 20px;
-            border-bottom: 1px solid #e1e4e8;
-        }
-        tbody tr:hover {
-            background-color: #f1f5fb;
-        }
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-        tbody td[colspan="4"] {
-            text-align: center;
-            color: #777;
-            font-style: italic;
-        }
-        a {
-            display: block;
-            text-align: center;
-            margin: 30px auto 60px;
-            text-decoration: none;
-            color: #0066cc;
-            font-weight: 600;
-            font-size: 15px;
-            max-width: 700px;
-            transition: color 0.3s ease;
-        }
-        a:hover {
-            color: #004a99;
-        }
-        a.edit-link {
-            color: #0066cc;
-            font-weight: 600;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-        a.edit-link:hover {
-            color: #004a99;
-            text-decoration: underline;
-        }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f9fafb;
+        color: #333;
+        margin: 0;
+        padding: 0 15px 40px 15px;
+      }
+      h1 {
+        text-align: center;
+        margin-top: 40px;
+        font-weight: 600;
+        color: #222;
+      }
+      form {
+        max-width: 600px;
+        margin: 20px auto;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+      form input[type="text"],
+      form input[type="search"] {
+        flex-grow: 1;
+        padding: 10px 12px;
+        font-size: 16px;
+        border: 1.5px solid #ccc;
+        border-radius: 5px;
+        transition: border-color 0.3s ease;
+        box-sizing: border-box;
+      }
+      form input[type="text"]:focus,
+      form input[type="search"]:focus {
+        border-color: #0066cc;
+        outline: none;
+        box-shadow: 0 0 6px rgba(0, 102, 204, 0.3);
+      }
+      form button {
+        background-color: #0066cc;
+        color: #fff;
+        font-weight: 600;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+      form button:hover {
+        background-color: #004a99;
+      }
+      table {
+        max-width: 700px;
+        margin: 30px auto 0 auto;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        font-size: 16px;
+      }
+      thead {
+        background-color: #0066cc;
+        color: #fff;
+        font-weight: 600;
+        text-align: left;
+      }
+      th,
+      td {
+        padding: 14px 20px;
+        border-bottom: 1px solid #e1e4e8;
+      }
+      tbody tr:hover {
+        background-color: #f1f5fb;
+      }
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+      tbody td[colspan="4"] {
+        text-align: center;
+        color: #777;
+        font-style: italic;
+      }
+      a {
+        display: block;
+        text-align: center;
+        margin: 30px auto 60px;
+        text-decoration: none;
+        color: #0066cc;
+        font-weight: 600;
+        font-size: 15px;
+        max-width: 700px;
+        transition: color 0.3s ease;
+      }
+      a:hover {
+        color: #004a99;
+      }
+      a.edit-link {
+        color: #0066cc;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+      a.edit-link:hover {
+        color: #004a99;
+        text-decoration: underline;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Manage Trainers</h1>
 
     <!-- Form to add a new trainer -->
     <form method="post" action="{{ url_for('admin.manage_trainers') }}">
-        <input type="text" name="trainer_name" placeholder="New Trainer Name" required />
-        <button type="submit">Add Trainer</button>
+      <input
+        type="text"
+        name="trainer_name"
+        placeholder="New Trainer Name"
+        required
+      />
+      <button type="submit">Add Trainer</button>
     </form>
 
     <!-- Search form -->
     <form method="get" action="{{ url_for('admin.manage_trainers') }}">
-        <input type="search" name="q" placeholder="Search trainers" value="{{ request.args.get('q', '') }}" />
-        <button type="submit">Search</button>
+      <input
+        type="search"
+        name="q"
+        placeholder="Search trainers"
+        value="{{ request.args.get('q', '') }}"
+      />
+      <button type="submit">Search</button>
     </form>
 
     <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Status</th>
-                <th>Edit</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for trainer in trainers %}
-            <tr>
-                <td>{{ trainer.id }}</td>
-                <td>{{ trainer.name }}</td>
-                <td>{{ trainer.status }}</td>
-                <td><a href="{{ url_for('admin.edit_trainer', id=trainer.id) }}" class="edit-link">Edit</a></td>
-            </tr>
-            {% else %}
-            <tr><td colspan="4">No trainers found.</td></tr>
-            {% endfor %}
-        </tbody>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Status</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for trainer in trainers %}
+        <tr>
+          <td>{{ trainer.id }}</td>
+          <td>{{ trainer.name }}</td>
+          <td>{{ trainer.status }}</td>
+          <td>
+            <a
+              href="{{ url_for('admin.edit_trainer', id=trainer.id) }}"
+              class="edit-link"
+              >Edit</a
+            >
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4">No trainers found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
 
-    <a href="{{ url_for('admin.dashboard') }}">&#8592; Back to Dashboard</a>
-</body>
+    <a href="{{ url_for('admin.dashboard') }}" class="back-btn"
+      >&#8592; Back to Dashboard</a
+    >
+  </body>
 </html>

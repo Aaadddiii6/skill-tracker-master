@@ -1,95 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <title>Completed Sessions | SkillTrack Pro</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f9fafb;
-            margin: 0;
-            padding: 30px;
-            color: #333;
-        }
-        h1 {
-            text-align: center;
-            font-weight: 700;
-            margin-bottom: 30px;
-        }
-        .session-list {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .session-item {
-            padding: 15px 20px;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .session-item:last-child {
-            border-bottom: none;
-        }
-        .session-info {
-            flex: 1;
-        }
-        .session-title {
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 5px;
-        }
-        a.report-link {
-            background-color: #2563eb;
-            color: white;
-            padding: 8px 18px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-        }
-        a.report-link:hover {
-            background-color: #1e40af;
-        }
-        a.back-link {
-            display: block;
-            margin: 30px auto 0;
-            max-width: 900px;
-            text-align: center;
-            text-decoration: none;
-            color: #2563eb;
-            font-weight: 600;
-        }
-        a.back-link:hover {
-            text-decoration: underline;
-        }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f9fafb;
+        margin: 0;
+        padding: 30px;
+        color: #333;
+      }
+      h1 {
+        text-align: center;
+        font-weight: 700;
+        margin-bottom: 30px;
+      }
+      .session-list {
+        max-width: 900px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .session-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .session-item:last-child {
+        border-bottom: none;
+      }
+      .session-info {
+        flex: 1;
+      }
+      .session-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+      }
+      a.report-link {
+        background-color: #2563eb;
+        color: white;
+        padding: 8px 18px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+      }
+      a.report-link:hover {
+        background-color: #1e40af;
+      }
+      a.back-link {
+        display: block;
+        margin: 30px auto 0;
+        max-width: 900px;
+        text-align: center;
+        text-decoration: none;
+        color: #2563eb;
+        font-weight: 600;
+      }
+      a.back-link:hover {
+        text-decoration: underline;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <h1>Completed Sessions</h1>
 
-<h1>Completed Sessions</h1>
-
-<div class="session-list">
-    {% if courses %}
-        {% for course in courses %}
-        <div class="session-item">
-            <div class="session-info">
-                <div class="session-title">{{ course.title }}</div>
-                <div>Completed</div>
-            </div>
-            <a href="{{ url_for('trainer.session_report', course_id=course.id) }}" class="report-link">Submit Report</a>
+    <div class="session-list">
+      {% if courses %} {% for course in courses %}
+      <div class="session-item">
+        <div class="session-info">
+          <div class="session-title">{{ course.title }}</div>
+          <div>Completed</div>
         </div>
-        {% endfor %}
-    {% else %}
-        <p style="text-align:center; font-style: italic; color:#666;">No completed sessions found.</p>
-    {% endif %}
-</div>
+        <a
+          href="{{ url_for('trainer.session_report', course_id=course.id) }}"
+          class="report-link"
+          >Submit Report</a
+        >
+      </div>
+      {% endfor %} {% else %}
+      <p style="text-align: center; font-style: italic; color: #666">
+        No completed sessions found.
+      </p>
+      {% endif %}
+    </div>
 
-<a href="{{ url_for('trainer.dashboard') }}" class="back-link">&#8592; Back to Dashboard</a>
-
-</body>
+    <a href="{{ url_for('trainer.dashboard') }}" class="back-btn"
+      >&#8592; Back to Dashboard</a
+    >
+  </body>
 </html>

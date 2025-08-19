@@ -1,110 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <title>Request New Course | SkillTrack Pro</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f9fafb;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-        h1 {
-            text-align: center;
-            margin-top: 40px;
-            font-weight: 600;
-            color: #222;
-        }
-        form {
-            max-width: 600px;
-            margin: 40px auto;
-            background: #ffffff;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 30px 40px;
-            border-radius: 8px;
-        }
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #555;
-        }
-        input[type="text"],
-        textarea,
-        select {
-            width: 100%;
-            padding: 10px 12px;
-            font-size: 16px;
-            border: 1.5px solid #ccc;
-            border-radius: 5px;
-            transition: border-color 0.3s ease;
-            box-sizing: border-box;
-        }
-        input[type="text"]:focus,
-        textarea:focus,
-        select:focus {
-            border-color: #0066cc;
-            outline: none;
-            box-shadow: 0 0 6px rgba(0, 102, 204, 0.3);
-        }
-        textarea {
-            resize: vertical;
-        }
-        button {
-            background-color: #0066cc;
-            color: #fff;
-            font-weight: 600;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 17px;
-            transition: background-color 0.3s ease;
-            width: 100%;
-        }
-        button:hover {
-            background-color: #004a99;
-        }
-        a {
-            display: block;
-            text-align: center;
-            margin-top: 30px;
-            text-decoration: none;
-            color: #0066cc;
-            font-weight: 600;
-            font-size: 15px;
-            transition: color 0.3s ease;
-        }
-        a:hover {
-            color: #004a99;
-        }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f9fafb;
+        color: #333;
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        text-align: center;
+        margin-top: 40px;
+        font-weight: 600;
+        color: #222;
+      }
+      form {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 30px 40px;
+        border-radius: 8px;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #555;
+      }
+      input[type="text"],
+      textarea,
+      select {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 16px;
+        border: 1.5px solid #ccc;
+        border-radius: 5px;
+        transition: border-color 0.3s ease;
+        box-sizing: border-box;
+      }
+      input[type="text"]:focus,
+      textarea:focus,
+      select:focus {
+        border-color: #0066cc;
+        outline: none;
+        box-shadow: 0 0 6px rgba(0, 102, 204, 0.3);
+      }
+      textarea {
+        resize: vertical;
+      }
+      button {
+        background-color: #0066cc;
+        color: #fff;
+        font-weight: 600;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 17px;
+        transition: background-color 0.3s ease;
+        width: 100%;
+      }
+      button:hover {
+        background-color: #004a99;
+      }
+      a {
+        display: block;
+        text-align: center;
+        margin-top: 30px;
+        text-decoration: none;
+        color: #0066cc;
+        font-weight: 600;
+        font-size: 15px;
+        transition: color 0.3s ease;
+      }
+      a:hover {
+        color: #004a99;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Request New Course</h1>
 
     <form method="post" action="{{ url_for('admin.request_course') }}">
-        <label for="title">Course Title:</label>
-        <input type="text" name="title" id="title" required autofocus />
+      <label for="title">Course Title:</label>
+      <input type="text" name="title" id="title" required autofocus />
 
-        <label for="description" style="margin-top: 20px;">Description:</label>
-        <textarea name="description" id="description" rows="5" required></textarea>
+      <label for="description" style="margin-top: 20px">Description:</label>
+      <textarea
+        name="description"
+        id="description"
+        rows="5"
+        required
+      ></textarea>
 
-        <label for="trainer" style="margin-top: 20px;">Select Initial Trainer (Optional):</label>
-        <select name="trainer" id="trainer">
-            <option value="">--None--</option>
-            {% for trainer in trainers %}
-            <option value="{{ trainer.id }}">{{ trainer.name }}</option>
-            {% endfor %}
-        </select>
+      <label for="trainer" style="margin-top: 20px"
+        >Select Initial Trainer (Optional):</label
+      >
+      <select name="trainer" id="trainer">
+        <option value="">--None--</option>
+        {% for trainer in trainers %}
+        <option value="{{ trainer.id }}">{{ trainer.name }}</option>
+        {% endfor %}
+      </select>
 
-        <button type="submit" style="margin-top: 30px;">Request Course</button>
+      <button type="submit" style="margin-top: 30px">Request Course</button>
     </form>
 
-    <a href="{{ url_for('admin.dashboard') }}">&#8592; Back to Dashboard</a>
-</body>
+    <a href="{{ url_for('admin.dashboard') }}" class="back-btn"
+      >&#8592; Back to Dashboard</a
+    >
+  </body>
 </html>
-

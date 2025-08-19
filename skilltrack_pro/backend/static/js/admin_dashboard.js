@@ -1,31 +1,46 @@
 // static/js/admin_dashboard.js
 
 document.addEventListener("DOMContentLoaded", async () => {
-    try {
-        // Fetch course status counts
-        const stats = await apiFetch("/api/admin/stats");
-        
-        // Update status cards
-        document.querySelector(".card.requested").textContent = `Requested: ${stats.requested}`;
-        document.querySelector(".card.in-review").textContent = `In Review: ${stats.in_review}`;
-        document.querySelector(".card.approved").textContent = `Approved: ${stats.approved}`;
-        document.querySelector(".card.completed").textContent = `Completed: ${stats.completed}`;
+  // Only run on admin dashboard page which contains the status cards
+  const requestedEl = document.querySelector(".card.requested");
+  const inReviewEl = document.querySelector(".card.in-review");
+  const approvedEl = document.querySelector(".card.approved");
+  const completedEl = document.querySelector(".card.completed");
+  const rejectedEl = document.querySelector(".card.rejected");
+  if (
+    !requestedEl ||
+    !inReviewEl ||
+    !approvedEl ||
+    !completedEl ||
+    !rejectedEl
+  ) {
+    return; // Not the dashboard page
+  }
+  try {
+    // Fetch course status counts
+    const stats = await apiFetch("/api/admin/stats");
 
-        // Fetch table data for courses
-        const courses = await apiFetch("/api/admin/courses");
-        populateCoursesTable(courses);
+    // Update status cards
+    requestedEl.textContent = `Requested: ${stats.requested}`;
+    inReviewEl.textContent = `In Review: ${stats.in_review}`;
+    approvedEl.textContent = `Approved: ${stats.approved}`;
+    completedEl.textContent = `Completed: ${stats.completed}`;
+    rejectedEl.textContent = `Rejected: ${stats.rejected}`;
 
-    } catch (err) {
-        console.error(err);
-        alert("Failed to load admin dashboard data");
-    }
+    // Fetch table data for courses
+    const courses = await apiFetch("/api/admin/courses");
+    populateCoursesTable(courses);
+  } catch (err) {
+    console.error(err);
+    // Fail silently outside dashboard
+  }
 });
 
 function populateCoursesTable(courses) {
-    const tableContainer = document.querySelector(".table-container");
-    if (!tableContainer) return;
+  const tableContainer = document.querySelector(".table-container");
+  if (!tableContainer) return;
 
-    let html = `<table>
+  let html = `<table>
         <thead>
             <tr>
                 <th>Title</th>
@@ -36,16 +51,16 @@ function populateCoursesTable(courses) {
         </thead>
         <tbody>`;
 
-    courses.forEach(c => {
-        html += `
+  courses.forEach((c) => {
+    html += `
             <tr>
                 <td>${c.title}</td>
                 <td>${c.trainer_name || "Unassigned"}</td>
                 <td>${c.status}</td>
                 <td>${c.scheduled_time || "-"}</td>
             </tr>`;
-    });
+  });
 
-    html += "</tbody></table>";
-    tableContainer.innerHTML = html;
+  html += "</tbody></table>";
+  tableContainer.innerHTML = html;
 }

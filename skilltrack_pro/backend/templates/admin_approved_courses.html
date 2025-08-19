@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Approved Courses | SkillTrack Pro</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}"
+    />
+    <style>
+      .menu-toggle {
+        visibility: hidden !important;
+        width: 38px;
+        height: 38px;
+        pointer-events: none;
+      }
+      .navbar {
+        height: 60px;
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+        justify-content: space-between;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        color: #fff;
+      }
+      .navbar-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .menu-toggle {
+        visibility: hidden;
+        width: 38px;
+        height: 38px;
+      }
+      .navbar-title {
+        font-weight: 700;
+      }
+      .dashboard-title {
+        opacity: 0.85;
+      }
+
+      body {
+        background: linear-gradient(
+          135deg,
+          #1e3a8a 0%,
+          #3730a3 50%,
+          #581c87 100%
+        );
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+      .sidebar.hidden {
+        transform: translateX(-100%);
+      }
+      .sidebar {
+        width: 230px;
+        background: linear-gradient(180deg, #1f2937 0%, #374151 100%);
+        color: #fff;
+        height: 100vh;
+        position: fixed;
+        top: 60px;
+        left: 0;
+        padding: 20px 10px;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+      }
+      .sidebar a {
+        color: #cbd5e1;
+        padding: 10px 15px;
+        text-decoration: none;
+        margin-bottom: 6px;
+        border-radius: 4px;
+      }
+      .sidebar a:hover {
+        background: #374151;
+        color: #fff;
+      }
+
+      .main-content {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        margin: 20px 20px 20px 250px;
+        padding: 80px 30px 30px 30px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        transition: margin-left 0.3s ease;
+      }
+      .main-content.full {
+        margin-left: 20px;
+      }
+      h1 {
+        color: #fff;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .table-container {
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      thead th {
+        position: sticky;
+        top: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(6px);
+      }
+      th,
+      td {
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      tr:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .back-btn {
+        display: inline-block;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+        color: #fff;
+        padding: 10px 18px;
+        border-radius: 8px;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle">&#9776;</button>
+        <span class="navbar-title">SkillTrack Pro</span>
+        <span class="dashboard-title">Admin</span>
+      </div>
+      <div class="navbar-right">
+        <a href="{{ url_for('auth.logout') }}">
+          <button class="logout-btn">Logout</button>
+        </a>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar hidden">
+      <h2>Admin</h2>
+      <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('admin.manage_trainers') }}">Manage Trainers</a>
+      <a href="{{ url_for('admin.request_course') }}">New Course</a>
+      <a href="{{ url_for('admin.schedule_course') }}">Schedule Courses</a>
+      <a href="{{ url_for('admin.approved_courses') }}">Approved Courses</a>
+      <a href="{{ url_for('admin.rejected_courses') }}">Rejected Courses</a>
+      <a href="{{ url_for('admin.feedback') }}">Feedback</a>
+    </div>
+
+    <div class="main-content full">
+      <a class="back-btn" href="{{ url_for('admin.dashboard') }}"
+        >&#8592; Back to Dashboard</a
+      >
+      <h1>Approved Courses</h1>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Course Title</th>
+              <th>Trainer</th>
+              <th>Status</th>
+              <th>Approved Document</th>
+              <th>Scheduled</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in courses %}
+            <tr>
+              <td>
+                <strong>{{ c.title }}</strong><br />
+                <small style="color: #6b7280"
+                  >{{ c.description[:100] }}{% if c.description and
+                  c.description|length > 100 %}...{% endif %}</small
+                >
+              </td>
+              <td>
+                {% if c.trainer %}{{ c.trainer.name }}{% else
+                %}<em>Unassigned</em>{% endif %}
+              </td>
+              <td><span class="status-badge approved">Approved</span></td>
+              <td>
+                {% set doc = course_documents.get(c.id) %} {% if doc and
+                doc.file_path %}
+                <a
+                  href="{{ url_for('static', filename=doc.file_path) }}"
+                  target="_blank"
+                  rel="noopener"
+                  >Open Document</a
+                >
+                {% else %}
+                <em>Not available</em>
+                {% endif %}
+              </td>
+              <td>{{ c.scheduled_time or '-' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <script>
+      const sidebar = document.querySelector(".sidebar");
+      const mainContent = document.querySelector(".main-content");
+      const menuBtn = document.querySelector(".menu-toggle");
+      if (sidebar && mainContent) {
+        sidebar.classList.add("hidden");
+        mainContent.classList.add("full");
+      }
+      if (menuBtn) menuBtn.style.visibility = "hidden";
+    </script>
+  </body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rejected Courses | SkillTrack Pro</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}"
+    />
+    <style>
+      /* Keep navbar layout identical: reserve space for the menu toggle */
+      .menu-toggle {
+        visibility: hidden !important;
+        width: 38px; /* reserve same horizontal space as visible icon */
+        height: 38px; /* keep vertical rhythm */
+        pointer-events: none; /* avoid focus */
+      }
+
+      /* Navbar layout identical to dashboard */
+      .navbar {
+        height: 60px;
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+        justify-content: space-between;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+      }
+      .navbar-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .navbar-title {
+        font-weight: bold;
+        font-size: 1.1rem;
+        color: #ffffff;
+      }
+      .dashboard-title {
+        font-size: 1rem;
+        opacity: 0.85;
+        color: #e5e7eb;
+      }
+      .navbar-right .logout-btn {
+        background: #dc2626;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+      }
+      .navbar-right .logout-btn:hover {
+        background: #b91c1c;
+      }
+
+      /* Ensure hidden sidebar actually moves off screen */
+      .sidebar.hidden {
+        transform: translateX(-100%);
+      }
+
+      /* Beautiful gradient background */
+      body {
+        background: linear-gradient(
+          135deg,
+          #1e3a8a 0%,
+          #3730a3 50%,
+          #581c87 100%
+        );
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* Enhanced main content with glassmorphism */
+      .main-content {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        margin: 20px 20px 20px 250px;
+        padding: 80px 30px 30px 30px; /* top padding for fixed navbar */
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        transition: margin-left 0.3s ease;
+      }
+      .main-content.full {
+        margin-left: 20px;
+      }
+
+      /* Enhanced navbar (colors) */
+      .navbar {
+        background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+      }
+
+      /* Enhanced sidebar */
+      .sidebar {
+        background: linear-gradient(180deg, #1f2937 0%, #374151 100%);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+      }
+
+      /* Enhanced title */
+      h1 {
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      /* Table Styles */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        max-width: 1200px;
+        margin: 0 auto 30px;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      th,
+      td {
+        padding: 16px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        text-align: left;
+      }
+      th {
+        background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+        color: white;
+        font-weight: 600;
+      }
+      tr:hover {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+      }
+
+      /* Status badge */
+      .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .status-badge.rejected {
+        background: linear-gradient(135deg, #fee2e2 0%, #fca5a5 100%);
+        color: #991b1b;
+      }
+
+      /* Feedback section */
+      .feedback-section {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 10px;
+        border-left: 4px solid #fca5a5;
+      }
+      .feedback-text {
+        font-style: italic;
+        color: #991b1b;
+        margin: 5px 0;
+      }
+      .feedback-date {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 8px;
+      }
+
+      /* No data message */
+      .no-data {
+        text-align: center;
+        color: white;
+        font-style: italic;
+        font-size: 18px;
+        margin-top: 50px;
+      }
+
+      /* Back button */
+      .back-btn {
+        display: inline-block;
+        background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+      }
+      .back-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(30, 58, 138, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top Navbar -->
+    <div class="navbar">
+      <div class="navbar-left">
+        <button class="menu-toggle">&#9776;</button>
+        <span class="navbar-title">SkillTrack Pro</span>
+        <span class="dashboard-title">Admin Dashboard</span>
+      </div>
+      <div class="navbar-right">
+        <a href="{{ url_for('auth.logout') }}">
+          <button class="logout-btn">Logout</button>
+        </a>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar hidden">
+      <h2>Admin</h2>
+      <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('admin.manage_trainers') }}">Manage Trainers</a>
+      <a href="{{ url_for('admin.request_course') }}">New Course</a>
+      <a href="{{ url_for('admin.schedule_course') }}">Schedule Courses</a>
+      <a href="{{ url_for('admin.approved_courses') }}">Approved Courses</a>
+      <a href="{{ url_for('admin.rejected_courses') }}">Rejected Courses</a>
+      <a href="{{ url_for('admin.feedback') }}">Feedback</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content full">
+      <a href="{{ url_for('admin.dashboard') }}" class="back-btn"
+        >&#8592; Back to Dashboard</a
+      >
+      <h1>Rejected Courses - Quality Monitoring</h1>
+
+      {% if rejected_courses %}
+      <table>
+        <thead>
+          <tr>
+            <th>Course Title</th>
+            <th>Trainer</th>
+            <th>Status</th>
+            <th>Rejection Feedback</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for course in rejected_courses %}
+          <tr>
+            <td>
+              <strong>{{ course.title }}</strong>
+              <br />
+              <small style="color: #6b7280"
+                >{{ course.description[:100] }}{% if course.description|length >
+                100 %}...{% endif %}</small
+              >
+            </td>
+            <td>
+              {% if course.trainer %} {{ course.trainer.name }} {% else %}
+              <em>Unassigned</em>
+              {% endif %}
+            </td>
+            <td>
+              <span class="status-badge rejected">Rejected</span>
+            </td>
+            <td>
+              {% if course_feedback.get(course.id) %} {% for feedback in
+              course_feedback[course.id] %}
+              <div class="feedback-section">
+                <div class="feedback-text">{{ feedback.comments }}</div>
+                <div class="feedback-date">
+                  {{ feedback.created_at.strftime('%Y-%m-%d %H:%M') }}
+                </div>
+              </div>
+              {% endfor %} {% else %}
+              <em>No feedback provided</em>
+              {% endif %}
+            </td>
+            <td>
+              <a
+                href="{{ url_for('admin.manage_trainers') }}"
+                style="color: #2563eb; text-decoration: none"
+              >
+                Reassign Trainer
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="no-data">
+        <p>🎉 No rejected courses at the moment!</p>
+        <p>All courses are meeting quality standards.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <!-- Sidebar Toggle Script -->
+    <script>
+      const sidebar = document.querySelector(".sidebar");
+      const mainContent = document.querySelector(".main-content");
+      const menuBtn = document.querySelector(".menu-toggle");
+      // Ensure sidebar stays hidden on this page
+      sidebar.classList.add("hidden");
+      mainContent.classList.add("full");
+      if (menuBtn) menuBtn.style.visibility = "hidden";
+    </script>
+  </body>
+</html>

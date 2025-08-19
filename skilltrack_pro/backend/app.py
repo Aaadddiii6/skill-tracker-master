@@ -1,6 +1,6 @@
 from flask import Flask, redirect, url_for, session
 from flask_login import LoginManager
-from routes_admin import admin_bp
+from routes_admin import admin_bp, api_admin_bp
 from routes_trainer import trainer_bp
 from routes_observer import observer_bp
 from auth import auth_bp
@@ -29,6 +29,7 @@ def load_user(user_id):
 # Register blueprints
 app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp)
+app.register_blueprint(api_admin_bp)
 app.register_blueprint(trainer_bp)
 app.register_blueprint(observer_bp)
 

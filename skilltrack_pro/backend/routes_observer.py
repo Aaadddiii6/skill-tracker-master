@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from models import Documentation, Feedback, Course, Trainer, db
+from sqlalchemy import and_
 from datetime import datetime
 
 observer_bp = Blueprint('observer', __name__, url_prefix='/observer')
@@ -8,8 +9,10 @@ observer_bp = Blueprint('observer', __name__, url_prefix='/observer')
 @observer_bp.route('/dashboard')
 @login_required
 def dashboard():
-    # Query documents by status
-    pending_docs = Documentation.query.filter_by(status='Pending').all()
+    # Query documents by status (only those with a real file_path)
+    pending_docs = Documentation.query.filter(
+        and_(Documentation.status == 'Pending', Documentation.file_path != '', Documentation.file_path != None)
+    ).all()
     approved_docs = Documentation.query.filter_by(status='Approved').all()
     rejected_docs = Documentation.query.filter_by(status='Rejected').all()
 
@@ -46,8 +49,8 @@ def review_documentation(doc_id):
 
             doc.status = 'Rejected'
             doc.rejected_at = datetime.utcnow()
-            # Update course status back to Requested so trainer can see it
-            course.status = 'Requested'
+            # Update course status to Rejected so admin can track quality issues
+            course.status = 'Rejected'
             # Save feedback linked to this doc
             feedback = Feedback(
                 documentation_id=doc.id,
@@ -78,7 +81,9 @@ def review_documentation(doc_id):
 @observer_bp.route('/pending_reviews')
 @login_required
 def pending_reviews():
-    pending_docs = Documentation.query.filter_by(status='Pending').all()
+    pending_docs = Documentation.query.filter(
+        and_(Documentation.status == 'Pending', Documentation.file_path != '', Documentation.file_path != None)
+    ).all()
     return render_template('pending_reviews.html', pending_docs=pending_docs)
 
 

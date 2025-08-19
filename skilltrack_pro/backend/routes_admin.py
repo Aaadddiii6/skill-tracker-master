@@ -1,9 +1,12 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-from models import Trainer, Course, db  # Your SQLAlchemy models and DB session
+from models import Trainer, Course, Documentation, Feedback, db  # Your SQLAlchemy models and DB session
 from sqlalchemy import or_
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+
+# API blueprint for admin dashboard JS
+api_admin_bp = Blueprint('api_admin', __name__, url_prefix='/api/admin')
 
 # Dashboard - show counts dynamically per user
 @admin_bp.route('/dashboard')
@@ -13,6 +16,7 @@ def dashboard():
     requested_count = Course.query.filter_by(status='Requested').count()
     in_review_count = Course.query.filter_by(status='In Review').count()
     approved_count = Course.query.filter_by(status='Approved').count()
+    rejected_count = Course.query.filter_by(status='Rejected').count()
     completed_count = Course.query.filter_by(status='Completed').count()
 
     return render_template(
@@ -20,8 +24,47 @@ def dashboard():
         requested_count=requested_count,
         in_review_count=in_review_count,
         approved_count=approved_count,
+        rejected_count=rejected_count,
         completed_count=completed_count
     )
+
+# ===== Admin API endpoints used by static/js/admin_dashboard.js =====
+@api_admin_bp.route('/stats')
+@login_required
+def api_stats():
+    requested_count = Course.query.filter_by(status='Requested').count()
+    in_review_count = Course.query.filter_by(status='In Review').count()
+    approved_count = Course.query.filter_by(status='Approved').count()
+    completed_count = Course.query.filter_by(status='Completed').count()
+    rejected_count = Course.query.filter_by(status='Rejected').count()
+
+    return jsonify({
+        'requested': requested_count,
+        'in_review': in_review_count,
+        'approved': approved_count,
+        'completed': completed_count,
+        'rejected': rejected_count,
+    })
+
+@api_admin_bp.route('/courses')
+@login_required
+def api_courses():
+    courses = Course.query.all()
+    # Build a lightweight DTO for the table
+    data = []
+    for c in courses:
+        trainer_name = None
+        if c.trainer_id:
+            trainer = Trainer.query.filter_by(id=c.trainer_id).first()
+            trainer_name = trainer.name if trainer else None
+        data.append({
+            'id': str(c.id),
+            'title': c.title,
+            'trainer_name': trainer_name,
+            'status': c.status,
+            'scheduled_time': c.scheduled_time if hasattr(c, 'scheduled_time') else None,
+        })
+    return jsonify(data)
 
 # Manage Trainers - list, add, edit, deactivate
 @admin_bp.route('/trainers', methods=['GET', 'POST'])
@@ -105,6 +148,53 @@ def schedule_course():
     # Courses pending scheduling (admin can see all)
     courses = Course.query.filter_by(status='In Review').all()
     return render_template('admin_schedule.html', courses=courses)
+
+# View rejected courses for quality monitoring
+@admin_bp.route('/rejected_courses')
+@login_required
+def rejected_courses():
+    # Get all rejected courses with trainer and feedback information
+    rejected_courses = (
+        Course.query
+        .filter_by(status='Rejected')
+        .all()
+    )
+    
+    # Get feedback for each rejected course
+    course_feedback = {}
+    for course in rejected_courses:
+        # Get the latest documentation for this course
+        latest_doc = (
+            Documentation.query
+            .filter_by(course_id=course.id)
+            .order_by(Documentation.revision_number.desc())
+            .first()
+        )
+        if latest_doc:
+            feedbacks = Feedback.query.filter_by(documentation_id=latest_doc.id).all()
+            course_feedback[course.id] = feedbacks
+    
+    return render_template('admin_rejected_courses.html', 
+                         rejected_courses=rejected_courses, 
+                         course_feedback=course_feedback)
+
+# View approved courses page
+@admin_bp.route('/approved_courses')
+@login_required
+def approved_courses():
+    courses = Course.query.filter_by(status='Approved').all()
+    # Map each course to its latest approved documentation (for link/display)
+    course_documents = {}
+    for c in courses:
+        latest_doc = (
+            Documentation.query
+            .filter_by(course_id=c.id, status='Approved')
+            .order_by(Documentation.revision_number.desc())
+            .first()
+        )
+        if latest_doc:
+            course_documents[c.id] = latest_doc
+    return render_template('admin_approved_courses.html', courses=courses, course_documents=course_documents)
 
 # Feedback overview
 @admin_bp.route('/feedback')
