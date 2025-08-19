@@ -1,12 +1,13 @@
 from flask import Flask, redirect, url_for, session
 from flask_login import LoginManager
-from routes_admin import admin_bp
-from routes_trainer import trainer_bp
-from routes_observer import observer_bp
-from auth import auth_bp
-from api import api_bp
-from models import db, User  # Import db and User model
+from .routes_admin import admin_bp
+from .routes_trainer import trainer_bp
+from .routes_observer import observer_bp
+from .auth import auth_bp
+from .api import api_bp
+from .models import db, User  # Import db and User model
 import os
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')  # Required for sessions
@@ -23,9 +24,11 @@ login_manager = LoginManager()
 login_manager.login_view = 'auth.login'  # Set your login route endpoint
 login_manager.init_app(app)
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
+
 
 # Register blueprints
 app.register_blueprint(auth_bp)
@@ -34,11 +37,14 @@ app.register_blueprint(trainer_bp)
 app.register_blueprint(observer_bp)
 app.register_blueprint(api_bp)
 
+
 @app.route('/')
 def home():
     return redirect(url_for('auth.login'))
 
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Create tables if not exist
-    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)

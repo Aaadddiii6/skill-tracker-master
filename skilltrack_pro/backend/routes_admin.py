@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-from models import Trainer, Course, Documentation, Feedback, db  # Your SQLAlchemy models and DB session
+from .models import Trainer, Course, Documentation, Feedback, db  # Your SQLAlchemy models and DB session
 from sqlalchemy import or_
 from datetime import datetime
 

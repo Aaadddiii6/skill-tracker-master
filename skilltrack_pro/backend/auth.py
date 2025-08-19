@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from flask_login import login_user, logout_user, login_required
-from supabase_client import supabase
-from models import User, db
+from .supabase_client import supabase
+from .models import User, db
 
 auth_bp = Blueprint('auth', __name__)
 

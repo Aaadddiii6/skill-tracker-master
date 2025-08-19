@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from models import Documentation, Feedback, Course, Trainer, db
+from .models import Documentation, Feedback, Course, Trainer, db
 from sqlalchemy import and_
 from datetime import datetime
 
