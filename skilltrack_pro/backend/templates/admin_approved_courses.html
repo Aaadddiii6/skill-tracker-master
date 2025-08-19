@@ -202,7 +202,7 @@
               </td>
               <td><span class="status-badge approved">Approved</span></td>
               <td>
-                {% set doc = course_documents.get(c.id) %} {% if doc and
+                {% set doc = approved_docs_map.get(c.id) %} {% if doc and
                 doc.file_path %}
                 <a
                   href="{{ url_for('static', filename=doc.file_path) }}"
