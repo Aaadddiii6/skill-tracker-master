@@ -5,9 +5,6 @@ from sqlalchemy import or_
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
-# API blueprint for admin dashboard JS
-api_admin_bp = Blueprint('api_admin', __name__, url_prefix='/api/admin')
-
 # Dashboard - show counts dynamically per user
 @admin_bp.route('/dashboard')
 @login_required
@@ -27,44 +24,6 @@ def dashboard():
         rejected_count=rejected_count,
         completed_count=completed_count
     )
-
-# ===== Admin API endpoints used by static/js/admin_dashboard.js =====
-@api_admin_bp.route('/stats')
-@login_required
-def api_stats():
-    requested_count = Course.query.filter_by(status='Requested').count()
-    in_review_count = Course.query.filter_by(status='In Review').count()
-    approved_count = Course.query.filter_by(status='Approved').count()
-    completed_count = Course.query.filter_by(status='Completed').count()
-    rejected_count = Course.query.filter_by(status='Rejected').count()
-
-    return jsonify({
-        'requested': requested_count,
-        'in_review': in_review_count,
-        'approved': approved_count,
-        'completed': completed_count,
-        'rejected': rejected_count,
-    })
-
-@api_admin_bp.route('/courses')
-@login_required
-def api_courses():
-    courses = Course.query.all()
-    # Build a lightweight DTO for the table
-    data = []
-    for c in courses:
-        trainer_name = None
-        if c.trainer_id:
-            trainer = Trainer.query.filter_by(id=c.trainer_id).first()
-            trainer_name = trainer.name if trainer else None
-        data.append({
-            'id': str(c.id),
-            'title': c.title,
-            'trainer_name': trainer_name,
-            'status': c.status,
-            'scheduled_time': c.scheduled_time if hasattr(c, 'scheduled_time') else None,
-        })
-    return jsonify(data)
 
 # Manage Trainers - list, add, edit, deactivate
 @admin_bp.route('/trainers', methods=['GET', 'POST'])

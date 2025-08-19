@@ -31,8 +31,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const courses = await apiFetch("/api/admin/courses");
     populateCoursesTable(courses);
   } catch (err) {
-    console.error(err);
-    // Fail silently outside dashboard
+    console.error("Dashboard data fetch error:", err);
+    // Show user-friendly error message
+    const errorMsg = "Dashboard data loading failed. Please refresh the page.";
+    console.log(errorMsg);
+    // Don't show popup, just log to console
   }
 });
 

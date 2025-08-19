@@ -1,9 +1,10 @@
 from flask import Flask, redirect, url_for, session
 from flask_login import LoginManager
-from routes_admin import admin_bp, api_admin_bp
+from routes_admin import admin_bp
 from routes_trainer import trainer_bp
 from routes_observer import observer_bp
 from auth import auth_bp
+from api import api_bp
 from models import db, User  # Import db and User model
 import os
 
@@ -29,9 +30,9 @@ def load_user(user_id):
 # Register blueprints
 app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp)
-app.register_blueprint(api_admin_bp)
 app.register_blueprint(trainer_bp)
 app.register_blueprint(observer_bp)
+app.register_blueprint(api_bp)
 
 @app.route('/')
 def home():
@@ -40,4 +41,4 @@ def home():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Create tables if not exist
-    app.run(debug=True)
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
