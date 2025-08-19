@@ -163,8 +163,10 @@ def rejected_courses():
 @login_required
 def approved_courses():
     courses = Course.query.filter_by(status='Approved').all()
+    
     # Map each course to its latest approved documentation (for link/display)
     approved_docs_map = {}
+    course_documents = {}
     for c in courses:
         latest_doc = (
             Documentation.query
@@ -174,7 +176,13 @@ def approved_courses():
         )
         if latest_doc:
             approved_docs_map[c.id] = latest_doc
-    return render_template('admin_approved_courses.html', courses=courses, approved_docs_map=approved_docs_map)
+            # Add to course_documents as needed, e.g., document object or URL
+            course_documents[c.id] = latest_doc  # or another attribute
+
+    return render_template('admin_approved_courses.html', 
+                           courses=courses, 
+                           approved_docs_map=approved_docs_map,
+                           course_documents=course_documents)
 
 # Feedback overview
 @admin_bp.route('/feedback')
@@ -206,27 +214,4 @@ def feedback():
 
     return render_template('admin_feedback.html', feedback_summary=feedback_data)
 
-@admin_bp.route('/approved_courses')
-@login_required
-def approved_courses():
-    courses = Course.query.filter_by(status='Approved').all()
-    
-    # Map each course to its latest approved documentation (for link/display)
-    approved_docs_map = {}
-    course_documents = {}
-    for c in courses:
-        latest_doc = (
-            Documentation.query
-            .filter_by(course_id=c.id, status='Approved')
-            .order_by(Documentation.revision_number.desc())
-            .first()
-        )
-        if latest_doc:
-            approved_docs_map[c.id] = latest_doc
-            # Add to course_documents as needed, e.g., document object or URL
-            course_documents[c.id] = latest_doc  # or another attribute
 
-    return render_template('admin_approved_courses.html', 
-                           courses=courses, 
-                           approved_docs_map=approved_docs_map,
-                           course_documents=course_documents)
