@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from flask_login import login_user, logout_user, login_required
-from .supabase_client import supabase
+from .supabase_client import supabase, register_user
 from .models import User, db
+import logging
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -30,18 +31,15 @@ def login():
             flash("No role assigned to this account", "danger")
             return render_template('login.html')
 
-        # Find or create user in local DB
         user = User.query.filter_by(email=email).first()
         if not user:
-            username = request.form.get('username')
-            username = email.split('@')[0]
-            user = User(email=email, supabase_user_id=user_data.id, role=role,username=username )
+            username = email.split('@')
+            user = User(email=email, supabase_user_id=user_data.id, role=role, username=username)
             user.set_password(password)
             db.session.add(user)
             db.session.commit()
 
-        login_user(user)  # Log user in with Flask-Login
-
+        login_user(user)
         session['role'] = role
 
         if role == 'admin':
@@ -55,8 +53,48 @@ def login():
             logout_user()
             return redirect(url_for('auth.login'))
 
-    # GET request - render login form
     return render_template('login.html')
+
+
+@auth_bp.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        logging.debug(f"Received registration POST with form data: {request.form}")
+        email = request.form.get('email')
+        username = request.form.get('username')
+        password = request.form.get('password')
+        role = request.form.get('role')
+
+        # Validate role
+        if role not in ['trainer', 'observer']:
+            flash("Invalid role selected", "danger")
+            return render_template('register.html')
+
+        result = register_user(email, password, username, role)
+
+        if 'error' in result and result['error']:
+            flash(result['error'], 'danger')
+            return render_template('register.html')
+
+        # On success: result contains keys 'message' and 'user'
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            user = User(email=email, username=username, role=role, supabase_user_id=result['user'].id)
+            user.set_password(password)
+            db.session.add(user)
+            db.session.commit()
+
+        login_user(user)
+        flash("Registration successful! Welcome.", "success")
+
+        if role == 'trainer':
+            return redirect(url_for('trainer.dashboard'))
+        else:
+            return redirect(url_for('observer.dashboard'))
+
+    # GET or fallback
+    return render_template('register.html')
+
 
 @auth_bp.route('/logout')
 @login_required
@@ -64,4 +102,3 @@ def logout():
     logout_user()
     session.clear()
     return redirect(url_for('auth.login'))
-

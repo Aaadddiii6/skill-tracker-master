@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Login | SkillTrack Pro</title>
+    <title>Register | SkillTrack Pro</title>
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/style.css') }}"
@@ -19,7 +19,7 @@
         justify-content: center;
       }
 
-      .login-container {
+      .register-container {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         padding: 40px;
@@ -81,29 +81,6 @@
         box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
       }
 
-      /* Styled register button */
-      .register-button {
-        margin-top: 20px;
-        background: #4c51bf;
-        color: white;
-        border: none;
-        padding: 12px 25px;
-        border-radius: 12px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        width: 100%;
-      }
-
-      .register-button:hover {
-        background: #3730a3;
-        box-shadow: 0 10px 25px rgba(66, 58, 180, 0.6);
-        transform: translateY(-3px);
-      }
-
       .error {
         color: #dc2626;
         background: #fef2f2;
@@ -113,94 +90,41 @@
         margin-top: 20px;
       }
 
-      /* Animated background elements */
-      .bg-elements {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        z-index: -1;
-      }
-
-      .bg-element {
-        position: absolute;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        animation: float 6s ease-in-out infinite;
-      }
-
-      .bg-element:nth-child(1) {
-        width: 80px;
-        height: 80px;
-        top: 20%;
-        left: 10%;
-        animation-delay: 0s;
-      }
-
-      .bg-element:nth-child(2) {
-        width: 120px;
-        height: 120px;
-        top: 60%;
-        right: 10%;
-        animation-delay: 2s;
-      }
-
-      .bg-element:nth-child(3) {
-        width: 60px;
-        height: 60px;
-        bottom: 20%;
-        left: 20%;
-        animation-delay: 4s;
-      }
-
-      @keyframes float {
-        0%,
-        100% {
-          transform: translateY(0px) rotate(0deg);
-        }
-        50% {
-          transform: translateY(-20px) rotate(180deg);
-        }
+      .success {
+        color: #065f46;
+        background: #d1fae5;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #a7f3d0;
+        margin-top: 20px;
       }
     </style>
   </head>
   <body>
-    <div class="bg-elements">
-      <div class="bg-element"></div>
-      <div class="bg-element"></div>
-      <div class="bg-element"></div>
-    </div>
-
-    <div class="login-container">
-      <h2>SkillTrack Pro</h2>
-      <form method="POST" action="{{ url_for('auth.login') }}">
+    <div class="register-container">
+      <h2>Register | SkillTrack Pro</h2>
+      <form method="POST" action="{{ url_for('auth.register') }}">
         <input type="email" name="email" placeholder="Email" required />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          required
-        />
+        <input type="text" name="username" placeholder="Username" required />
+        <input type="password" name="password" placeholder="Password" minlength="6" title="Password must be at least 6 characters" required />
+
         <select name="role" required>
           <option value="">Select Role</option>
-          <option value="admin">Admin</option>
           <option value="trainer">Trainer</option>
           <option value="observer">Observer</option>
         </select>
-        <button type="submit">Login</button>
+        <button type="submit">Register</button>
       </form>
 
-      <form action="{{ url_for('auth.register') }}">
-        <button type="submit" class="register-button">
-          Register
-        </button>
-      </form>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <p class="{{ category }}">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
 
-      {% if error %}
-      <p class="error">{{ error }}</p>
-      {% endif %}
+      <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
     </div>
   </body>
 </html>

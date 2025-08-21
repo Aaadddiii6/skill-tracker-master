@@ -29,11 +29,10 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
-
 class Trainer(db.Model):
     __tablename__ = 'trainers'
 
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # UUID primary key
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = db.Column(db.String(100), nullable=False)
     status = db.Column(db.String(50), default='Active')
 
@@ -46,11 +45,10 @@ class Trainer(db.Model):
     def __repr__(self):
         return f'<Trainer {self.name}>'
 
-
 class Course(db.Model):
     __tablename__ = 'courses'
 
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  # UUID primary key
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(50), default='Requested')
@@ -67,14 +65,13 @@ class Course(db.Model):
     def __repr__(self):
         return f'<Course {self.title}>'
 
-
 class Documentation(db.Model):
     __tablename__ = 'documentation'
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     course_id = db.Column(UUID(as_uuid=True), db.ForeignKey('courses.id'), nullable=False)
     file_path = db.Column(db.String(255), nullable=False)
-    status = db.Column(db.String(50), default='Pending')  # e.g., Pending, Approved, Rejected
+    status = db.Column(db.String(50), default='Pending')  # Pending, Approved, Rejected, etc.
     submitted_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     approved_at = db.Column(db.DateTime, nullable=True)
     rejected_at = db.Column(db.DateTime, nullable=True)
@@ -85,7 +82,6 @@ class Documentation(db.Model):
 
     def __repr__(self):
         return f'<Documentation {self.id} for Course {self.course_id}>'
-
 
 class Feedback(db.Model):
     __tablename__ = 'feedback'
