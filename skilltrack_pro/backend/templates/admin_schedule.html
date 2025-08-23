@@ -3,10 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>Schedule Course | SkillTrack Pro</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
-    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
     <style>
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -81,27 +78,149 @@
       a:hover {
         color: #004a99;
       }
+
+      /* Sidebar styles */
+      .sidebar {
+        width: 230px;
+        background: linear-gradient(180deg, #1f2937 0%, #374151 100%);
+        color: #fff;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        padding: 20px 10px;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        transition: transform 0.3s ease;
+        z-index: 999;
+      }
+      .sidebar.hidden {
+        transform: translateX(-100%);
+      }
+      .sidebar a {
+        color: #cbd5e1;
+        padding: 10px 15px;
+        text-decoration: none;
+        margin-bottom: 6px;
+        border-radius: 4px;
+      }
+      .sidebar a:hover {
+        background: #374151;
+        color: #fff;
+      }
+
+      /* Main content shift with sidebar toggle */
+      .main-content {
+        margin-left: 250px;
+        transition: margin-left 0.3s ease;
+        padding: 20px;
+      }
+      .main-content.full {
+        margin-left: 20px;
+      }
+
+      /* Navbar styles */
+      .navbar {
+        height: 60px;
+        background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+        justify-content: space-between;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+      }
+      .navbar-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .menu-toggle {
+        font-size: 22px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        color: white;
+      }
+      .navbar-title {
+        font-weight: bold;
+        font-size: 1.1rem;
+      }
+      .dashboard-title {
+        font-size: 1rem;
+        opacity: 0.8;
+      }
+      .navbar-right .logout-btn {
+        background: #dc2626;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+      }
+      .navbar-right .logout-btn:hover {
+        background: #b91c1c;
+      }
     </style>
   </head>
   <body>
-    <h1>Schedule Course</h1>
+    <!-- Navbar -->
+    <div class="navbar">
+      <div class="navbar-left">
 
-    <form method="post" action="{{ url_for('admin.schedule_course') }}">
-      <label for="course">Select Course:</label>
-      <select name="course_id" id="course" required>
-        {% for course in courses %}
-        <option value="{{ course.id }}">{{ course.title }}</option>
-        {% endfor %}
-      </select>
+        <span class="navbar-title">SkillTrack Pro</span>
+        <span class="dashboard-title">Schedule Course</span>
+      </div>
+      <div class="navbar-right">
+        <a href="{{ url_for('auth.logout') }}">
+          <button class="logout-btn">Logout</button>
+        </a>
+      </div>
+    </div>
 
-      <label for="date" style="margin-top: 20px">Date & Time:</label>
-      <input type="datetime-local" name="datetime" id="date" required />
+    <!-- Sidebar -->
 
-      <button type="submit">Assign Time Slot</button>
-    </form>
 
-    <a href="{{ url_for('admin.dashboard') }}" class="back-btn"
-      >&#8592; Back to Dashboard</a
-    >
+    <!-- Main Content -->
+    <div class="main-content full" id="main-content">
+      <h1>Schedule Course</h1>
+
+      <form method="post" action="{{ url_for('admin.schedule_course') }}">
+        <label for="course">Select Course:</label>
+        <select name="course_id" id="course" required>
+          <option value="">--Select a course--</option>
+          {% for course in courses %}
+          <option value="{{ course.id }}">{{ course.title }}</option>
+          {% endfor %}
+        </select>
+
+        <label for="date" style="margin-top: 20px">Date & Time:</label>
+        <input type="datetime-local" name="datetime" id="date" required />
+
+        <button type="submit">Assign Time Slot</button>
+      </form>
+
+      <a href="{{ url_for('admin.dashboard') }}" class="back-btn">&#8592; Back to Dashboard</a>
+    </div>
+
+    <!-- Sidebar Toggle Script -->
+    <script>
+      const toggleBtn = document.querySelector(".menu-toggle");
+      const sidebar = document.getElementById("sidebar");
+      const mainContent = document.getElementById("main-content");
+
+      toggleBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("hidden");
+        mainContent.classList.toggle("full");
+      });
+    </script>
   </body>
 </html>

@@ -214,43 +214,42 @@
   <body>
     <!-- Top Navbar -->
     <div class="navbar">
-      <div class="navbar-left">
-        <button class="menu-toggle">&#9776;</button>
-        <!-- Three horizontal lines -->
-        <span class="navbar-title">SkillTrack Pro</span>
-        <span class="dashboard-title">Admin Dashboard</span>
-      </div>
-      <div class="navbar-right">
-        <a href="{{ url_for('auth.logout') }}">
-          <button class="logout-btn">Logout</button>
-        </a>
-      </div>
+        <div class="navbar-left">
+            <button class="menu-toggle" aria-label="Toggle Menu">&#9776;</button>
+            <span class="navbar-title">SkillTrack Pro</span>
+            <span class="dashboard-title">Admin Dashboard</span>
+        </div>
+        <div class="navbar-right">
+            <a href="{{ url_for('auth.logout') }}">
+                <button class="logout-btn">Logout</button>
+            </a>
+        </div>
     </div>
 
     <!-- Sidebar -->
-    <div class="sidebar hidden">
-      <h2>Admin</h2>
-      <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
-      <a href="{{ url_for('admin.manage_trainers') }}">Manage Trainers</a>
-      <a href="{{ url_for('admin.request_course') }}">New Course</a>
-      <a href="{{ url_for('admin.schedule_course') }}">Schedule Courses</a>
-      <a href="{{ url_for('admin.approved_courses') }}">Approved Courses</a>
-      <a href="{{ url_for('admin.rejected_courses') }}">Rejected Courses</a>
-      <a href="{{ url_for('admin.feedback') }}">Feedback</a>
+    <div class="sidebar hidden" id="sidebar">
+        <h2>Admin</h2>
+        <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('admin.manage_trainers') }}">Manage Trainers</a>
+        <a href="{{ url_for('admin.request_course') }}">New Course</a>
+        <a href="{{ url_for('admin.schedule_course') }}">Schedule Courses</a>
+        <a href="{{ url_for('admin.approved_courses') }}">Approved Courses</a>
+        <a href="{{ url_for('admin.rejected_courses') }}">Rejected Courses</a>
+        <a href="{{ url_for('admin.feedback') }}">Feedback</a>
     </div>
 
     <!-- Main Content -->
-    <div class="main-content full">
-      <h1>Course Status Overview & Quality Monitoring</h1>
-      <div class="status-cards">
-        <div class="card requested">Requested: {{ requested_count }}</div>
-        <div class="card in-review">In Review: {{ in_review_count }}</div>
-        <div class="card approved">Approved: {{ approved_count }}</div>
-        <div class="card rejected">Rejected: {{ rejected_count }}</div>
-        <div class="card completed">Completed: {{ completed_count }}</div>
-      </div>
+    <div class="main-content full" id="main-content">
+        <h1>Course Status Overview & Quality Monitoring</h1>
+        <div class="status-cards">
+            <div class="card requested">Requested: {{ requested_count }}</div>
+            <div class="card in-review">In Review: {{ in_review_count }}</div>
+            <div class="card approved">Approved: {{ approved_count }}</div>
+            <div class="card rejected">Rejected: {{ rejected_count }}</div>
+            <div class="card completed">Completed: {{ completed_count }}</div>
+        </div>
 
-      <div class="table-container"></div>
+        <div class="table-container"></div>
     </div>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
@@ -258,14 +257,15 @@
 
     <!-- Sidebar Toggle Script -->
     <script>
-      const toggleBtn = document.querySelector(".menu-toggle");
-      const sidebar = document.querySelector(".sidebar");
-      const mainContent = document.querySelector(".main-content");
+        const toggleBtn = document.querySelector(".menu-toggle");
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.getElementById("main-content");
 
-      toggleBtn.addEventListener("click", () => {
-        sidebar.classList.toggle("hidden");
-        mainContent.classList.toggle("full");
-      });
+        toggleBtn.addEventListener("click", () => {
+            sidebar.classList.toggle("hidden");
+            mainContent.classList.toggle("full");
+        });
     </script>
-  </body>
+
+    </body>
 </html>

@@ -1,24 +1,22 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
-from .models import Course, Trainer, Feedback, Documentation, db
 from werkzeug.utils import secure_filename
 from sqlalchemy import or_
 import os
+from .models import Course, Trainer, Feedback, Documentation, db
 
 trainer_bp = Blueprint('trainer', __name__, url_prefix='/trainer')
 
-# Helper: Allowed file extensions for documentation upload
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'ppt', 'pptx'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Helper: get or create the Trainer record for the logged-in user
 def get_or_create_current_trainer():
+    """Fetch or create a Trainer record for the logged-in user."""
     trainer = Trainer.query.filter_by(user_id=current_user.id).first()
     if not trainer:
-        # Auto-provision a trainer profile so flows work end-to-end
-        default_name = getattr(current_user, 'username', None) or (getattr(current_user, 'email', '') or 'Trainer').split('@')[0]
+        default_name = getattr(current_user, 'username', None) or (getattr(current_user, 'email', '') or 'Trainer').split('@')
         trainer = Trainer(name=default_name, user_id=current_user.id, status='Active')
         db.session.add(trainer)
         db.session.commit()
@@ -56,17 +54,13 @@ def my_courses():
 @trainer_bp.route('/course_requests')
 @login_required
 def course_requests():
-    # Show requests assigned or unassigned (trainer_id is None) for current trainer
     trainer = get_or_create_current_trainer()
-    # Also include requests pre-assigned by admin to a trainer record that
-    # matches this trainer's name (admin-owned trainer rows)
-    # Also include rejected courses that need to be fixed
     requests = (
         Course.query
         .filter(
             or_(
                 Course.status == 'Requested',
-                Course.status == 'Rejected'  # Show rejected courses so trainer can fix them
+                Course.status == 'Rejected'  # Include rejected for fixing
             ),
             or_(
                 Course.trainer_id == None,
@@ -85,16 +79,14 @@ def accept_course_request(course_id):
     course = Course.query.filter_by(id=course_id, status='Requested').first_or_404()
     course.trainer_id = trainer.id
     course.status = 'In Review'
-    
-    # Create initial documentation record for the course
+
     initial_doc = Documentation(
         course_id=course_id,
-        file_path='',  # Will be set when file is uploaded
+        file_path='',
         status='Pending',
         revision_number=1
     )
     db.session.add(initial_doc)
-    
     db.session.commit()
     flash('Course request accepted and moved to In Review.', 'success')
     return redirect(url_for('trainer.course_requests'))
@@ -104,7 +96,7 @@ def accept_course_request(course_id):
 def decline_course_request(course_id):
     course = Course.query.filter_by(id=course_id, status='Requested').first_or_404()
     course.trainer_id = None
-    # Optionally, add a declined status or keep as Requested for reassignment
+    # Optionally add declined status or keep 'Requested'
     db.session.commit()
     flash('Course request declined.', 'info')
     return redirect(url_for('trainer.course_requests'))
@@ -115,7 +107,6 @@ def upload_documentation(course_id):
     trainer = get_or_create_current_trainer()
     course = Course.query.filter_by(id=course_id, trainer_id=trainer.id).first_or_404()
 
-    # Find the latest documentation entry for display
     latest_doc = (
         Documentation.query
         .filter_by(course_id=course.id)
@@ -127,22 +118,21 @@ def upload_documentation(course_id):
         if 'documentation' not in request.files:
             flash('No file part', 'danger')
             return redirect(request.url)
+
         file = request.files['documentation']
         if file.filename == '':
             flash('No selected file', 'danger')
             return redirect(request.url)
+
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            # Save under static so observer link can serve via url_for('static', ...)
             upload_folder = os.path.join(current_app.root_path, 'static', 'uploads', 'docs', str(course.id))
             os.makedirs(upload_folder, exist_ok=True)
             abs_path = os.path.join(upload_folder, filename)
             file.save(abs_path)
 
-            # Store path relative to static/
             relative_path = os.path.join('uploads', 'docs', str(course.id), filename).replace('\\', '/')
 
-            # Determine next revision number
             next_revision = (latest_doc.revision_number if latest_doc else 0) + 1
 
             new_doc = Documentation(
@@ -166,12 +156,10 @@ def upload_documentation(course_id):
 def submit_for_review(course_id):
     trainer = get_or_create_current_trainer()
     course = Course.query.filter_by(id=course_id, trainer_id=trainer.id).first_or_404()
-    
-    # If course was rejected, update its status back to In Review
+
     if course.status == 'Rejected':
         course.status = 'In Review'
-    
-    # Ensure the latest doc is marked Pending (queue for observer)
+
     latest_doc = (
         Documentation.query
         .filter_by(course_id=course.id)
@@ -184,7 +172,7 @@ def submit_for_review(course_id):
         flash('Documentation submitted for observer review.', 'success')
     else:
         flash('No documentation found to submit.', 'danger')
-    
+
     return redirect(url_for('trainer.upload_documentation', course_id=course_id))
 
 @trainer_bp.route('/approvals_feedback')
@@ -205,8 +193,7 @@ def provide_feedback(course_id):
     if request.method == 'POST':
         comments = request.form.get('comments')
         rating = request.form.get('rating')
-        
-        # Get the latest documentation for this course
+
         latest_doc = Documentation.query.filter_by(course_id=course.id).order_by(Documentation.revision_number.desc()).first()
         if latest_doc:
             feedback = Feedback(documentation_id=latest_doc.id, comments=comments, rating=rating)
@@ -217,13 +204,12 @@ def provide_feedback(course_id):
             flash('No documentation found for this course.', 'danger')
         return redirect(url_for('trainer.approvals_feedback'))
 
-    # Get feedbacks from all documentations for this course
     existing_feedbacks = []
     docs = Documentation.query.filter_by(course_id=course.id).all()
     for doc in docs:
         doc_feedbacks = Feedback.query.filter_by(documentation_id=doc.id).all()
         existing_feedbacks.extend(doc_feedbacks)
-    
+
     return render_template('trainer_feedback.html', course=course, feedbacks=existing_feedbacks)
 
 @trainer_bp.route('/completed_sessions')

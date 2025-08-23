@@ -10,13 +10,13 @@ class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    supabase_user_id = db.Column(UUID(as_uuid=True), unique=True, nullable=True)
+    supabase_user_id = db.Column(UUID(as_uuid=True), unique=True, nullable=True)  # Link to Supabase user
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    role = db.Column(db.String(50), nullable=True)
+    role = db.Column(db.String(50), nullable=True)  # admin, trainer, observer, etc.
 
-    # Relationships
+    # Relationships: a User can own many trainers and courses
     trainers = db.relationship('Trainer', backref='owner', lazy=True)
     courses = db.relationship('Course', backref='owner', lazy=True)
 
@@ -34,12 +34,12 @@ class Trainer(db.Model):
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = db.Column(db.String(100), nullable=False)
-    status = db.Column(db.String(50), default='Active')
+    status = db.Column(db.String(50), default='Active')  # Active, Inactive
 
-    # Owner of the trainer (user)
+    # Reference back to owner User
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
 
-    # Relationship to courses
+    # Relationship: a Trainer can have many courses assigned
     courses = db.relationship('Course', backref='trainer', lazy=True)
 
     def __repr__(self):
@@ -51,15 +51,15 @@ class Course(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=True)
-    status = db.Column(db.String(50), default='Requested')
+    status = db.Column(db.String(50), default='Requested')  # Requested, In Review, Approved, etc.
     scheduled_time = db.Column(db.DateTime, nullable=True)
 
-    # Owner of the course (user)
+    # Owner of course (admin user who added)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), nullable=False)
-    # Assigned trainer (UUID foreign key)
+    # Assigned Trainer (nullable for unassigned courses)
     trainer_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trainers.id'), nullable=True)
 
-    # Relationship to documentation submissions
+    # One-to-many with documentation
     documents = db.relationship('Documentation', backref='course', lazy=True)
 
     def __repr__(self):
@@ -77,7 +77,7 @@ class Documentation(db.Model):
     rejected_at = db.Column(db.DateTime, nullable=True)
     revision_number = db.Column(db.Integer, default=0)
 
-    # Relationship to feedbacks about this documentation
+    # One-to-many relationship with feedback
     feedbacks = db.relationship('Feedback', backref='documentation', lazy='dynamic', cascade="all, delete-orphan")
 
     def __repr__(self):
